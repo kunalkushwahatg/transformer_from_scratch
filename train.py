@@ -1,7 +1,5 @@
-# train.py
 
 import torch
-import random
 import tqdm
 from torch import nn
 from torch.utils.data import Dataset, DataLoader
@@ -21,16 +19,19 @@ MAX_LEN = Config.MAX_LEN
 VOCAB_SIZE = Config.VOCAB_SIZE
 EPOCHS = Config.EPOCHS
 LEARNING_RATE = Config.LEARNING_RATE
+SAVE_PATH = Config.SAVE_PATH
 
-# Load dataset
-dataset = TextDataset("data/input.txt", max_len=10, vocab_size=10000)
-dataloader = DataLoader(dataset, batch_size=16, shuffle=True)
-
-
-# Model shape
 shape = (BATCH_SIZE, MAX_LEN, DMODEL)
 
-# Initialize model
+
+
+dataset = TextDataset(DATA_FILE_PATH, max_len=MAX_LEN, vocab_size=VOCAB_SIZE)
+print("Vocabulary size:", dataset.vocab_size)
+dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
+
+
+
+# Initialize model, criterion, and optimizer
 model = Pretraining(VOCAB_SIZE, shape,DEVICE ,heads=HEADS).to(DEVICE)
 criterion = nn.CrossEntropyLoss()
 optimizer = Adam(model.parameters(), lr=LEARNING_RATE)
@@ -56,4 +57,35 @@ for epoch in range(EPOCHS):
     average_loss = sum(losses) / len(losses)
     print(f'Epoch {epoch + 1}, Average Loss: {average_loss}')
 
+#infrence 
+TOKEN_GEN = 10000
+text = "The quick brown fox jumps over the lazy dog"
+
+def infrence(text):
+    model.eval()
+    for i in range(TOKEN_GEN):
+        tokens = dataset.sp.encode(text)
+        
+        #acess last MAX_LEN tokens
+        tokens = tokens[-MAX_LEN:]
+
+        #convert to tensor
+        tokens = torch.Tensor(tokens).long().unsqueeze(0).to(DEVICE)
+
+        #get prediction
+        prediction = model(tokens)
+        prediction = prediction.squeeze(0)
+
+        #get argmax
+        prediction = torch.argmax(prediction,dim=-1)
+
+        #decode 
+        text += dataset.decode(prediction) + " "
+    return text
+
+print(infrence(text))
+# Save the model
+torch.save(model.state_dict(), SAVE_PATH)
+
 print("Training completed.")
+

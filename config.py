@@ -6,6 +6,7 @@ class Config:
 
     # File paths
     DATA_FILE_PATH = "data/input.txt"
+    SAVE_PATH = "saved_models/model.pth"
 
     # Model configuration
     DMODEL = 512
@@ -14,8 +15,9 @@ class Config:
     MAX_LEN = 10
 
     # Tokenizer configuration
-    VOCAB_SIZE = 30000
+    VOCAB_SIZE = 10000
 
     # Training configuration
     EPOCHS = 10
     LEARNING_RATE = 0.001
+
