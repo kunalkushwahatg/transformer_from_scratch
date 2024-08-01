@@ -53,7 +53,7 @@ for epoch in range(EPOCHS):
         running_loss += loss.item()
         losses.append(loss.item())
 
-    average_loss = running_loss / len(batches)
+    average_loss = sum(losses) / len(losses)
     print(f'Epoch {epoch + 1}, Average Loss: {average_loss}')
 
 print("Training completed.")
